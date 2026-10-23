@@ -9,12 +9,12 @@ namespace SPTWishlistCategories
     /// <summary>
     /// 让跳蚤市场"愿望单(Wishlist)"侧栏像跳蚤市场分类树一样按物品种类分组的客户端补丁。
     /// </summary>
-    [BepInPlugin(Guid, "SPT-WishlistCategories", "1.0.0")]
+    [BepInPlugin(Guid, "SPT-WishlistCategories", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         public const string Guid = "com.yg.sptwishlistcategories";
         public const string Name = "SPT-WishlistCategories";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         internal static Plugin Instance;
         internal static ManualLogSource Log;

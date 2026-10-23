@@ -407,6 +407,29 @@ namespace SPTWishlistCategories.Patches
         }
     }
 
+    // (13) 独占高亮：官方只在 HandleNodeSelection 里 Deselect 上一个选中节点，
+    //      分类行的点击被本 mod 拦下（不走 SetFilterRule），那条链路不会执行，
+    //      于是每点一个分类就多亮一行。这里在任何视图被选中时清掉其它选中态。
+    internal sealed class ExclusiveSelectionPatch : ModPatch
+    {
+        protected override MethodBase TargetMethod()
+        {
+            return Resolve(typeof(NodeBaseView), "SelectView");
+        }
+
+        private static void Postfix(NodeBaseView __instance)
+        {
+            try
+            {
+                WishlistSelection.DeselectOthers(__instance);
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"清除其它高亮失败: {e}");
+            }
+        }
+    }
+
     internal static class ViewUtil
     {
         private static readonly FieldInfo ViewListTypeField =

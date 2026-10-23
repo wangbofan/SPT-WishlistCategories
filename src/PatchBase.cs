@@ -109,6 +109,7 @@ namespace SPTWishlistCategories
                 new Patches.ClearWishListCachePatch(),
                 new Patches.ManageOffersPatch(),
                 new Patches.CategoriesComparerPatch(),
+                new Patches.ExclusiveSelectionPatch(),
             };
 
             int ok = 0;

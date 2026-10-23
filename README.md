@@ -6,7 +6,7 @@
 
 - ✅ 纯客户端插件（BepInEx 5 / Harmony），**不改存档、不改服务端**
 - ✅ 适用 **SPT 4.1.x**
-- ✅ 12 个补丁全部按精确签名解析，签名变了会跳过并在日志里说明，不会崩游戏
+- ✅ 13 个补丁全部按精确签名解析，签名变了会跳过并在日志里说明，不会崩游戏
 
 ---
 
@@ -64,12 +64,14 @@
 | 10 | `RagFair.ClearWishListCache` (postfix) | 它会把 `Wishlist.Last()` 写进 `LastSelectedIds`，分组后那是分类 id，改写为分类下第一个物品 |
 | 11 | `OfferViewList.ManageOffers` (postfix) | 记录当前愿望单视图，供增删后延迟重建 |
 | 12 | `CategoriesComparer.Compare` (prefix) | 分类恒在物品之前；分类之间按 `Data.Order` 降序（官方对 dummy 节点会退化成按名字排） |
+| 13 | `NodeBaseView.SelectView` (postfix) | 独占高亮：官方只在 `HandleNodeSelection` 里取消上一个选中项，而分类行点击被本 mod 拦下、那条链路不执行；改为「任何视图被选中时清掉同面板其它选中态」 |
 
 几个关键点：
 
 - **点分类绝不能进 `SetFilterRule`**：跳蚤市场是按 `handbookId` 拉报价的，`RagFair.IsOfferAcceptable` 并不校验「是否在愿望单里」，分类 id 进去会把整类报价全拉出来。
 - **`HandbookNodes` 的根字典只放根节点，`_cachedNodes` 索引放全部节点**：`RagfairCategoriesPanel` 按根字典逐行渲染，嵌套子项写进根字典会多画一行；而 `nodes[id]` 读的是 `_cachedNodes`，所以索引里必须有全部节点。
 - **增删走静默写**：`BindableDictionary.ItemAdded` 会让 `RagfairCategoriesPanel` 在顶层再插一行，所以直接写 `_dictionary` / `_cachedNodes`，然后下一帧重建视图。
+- **高亮必须自己管**：官方取消上一个选中项的唯一位置是 `OfferViewList.HandleNodeSelection` 里的 `_selectedItemPanel.DeselectView()`，而它只在「点击后成功拉到报价」时执行；分类行点击被第 5 条补丁拦下，所以改由第 13 条在 `SelectView` 时统一清理。
 
 ---
 
@@ -96,7 +98,8 @@ SPT-WishlistCategories/
 │  ├─ PatchBase.cs       # ModPatch 基类（精确签名解析）+ 补丁注册表
 │  ├─ WishlistTree.cs    # 扁平列表 → 分类树的重建/增删/计数
 │  ├─ WishlistRefresh.cs # 增删后的延迟视图刷新
-│  └─ Patches.cs         # 12 个 Harmony 补丁
+│  ├─ Selection.cs       # 独占高亮（同一面板只允许一个选中行）
+│  └─ Patches.cs         # 13 个 Harmony 补丁
 └─ README.md
 ```
 
